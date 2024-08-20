@@ -1,0 +1,224 @@
+#include "ServidorChat.h"
+#include <iostream>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <thread>
+#include <cstring>
+#include <chrono>
+#include <mutex>
+#include <vector>
+#include <string>
+
+// Constructor que inicializa el puerto del servidor
+ServidorChat::ServidorChat(int puerto)
+    : puerto(puerto), descriptorServidor(-1) {}
+
+
+int ServidorChat::conectarAServidorRemoto(const std::string& ipServidor, int puertoServidor) {
+    int descriptorCliente = socket(AF_INET, SOCK_STREAM, 0);
+    if (descriptorCliente == -1) {
+        std::cerr << "Error al crear el socket de cliente.\n";
+        return -1;
+    }
+
+    sockaddr_in direccionServidor;
+    direccionServidor.sin_family = AF_INET;
+    direccionServidor.sin_port = htons(puertoServidor);
+    inet_pton(AF_INET, ipServidor.c_str(), &direccionServidor.sin_addr);
+
+    if (connect(descriptorCliente, (sockaddr*)&direccionServidor, sizeof(direccionServidor)) == -1) {
+        std::cerr << "Error al conectar con el servidor remoto.\n";
+        close(descriptorCliente);
+        return -1;
+    }
+
+    return descriptorCliente;
+}
+
+// Método para iniciar el servidor
+void ServidorChat::iniciar() {
+    // Crear el socket del servidor
+    descriptorServidor = socket(AF_INET, SOCK_STREAM, 0);
+    if (descriptorServidor == -1) {
+        std::cerr << "Error al crear el socket del servidor.\n";
+        return;
+    }
+
+    sockaddr_in direccionServidor;
+    direccionServidor.sin_family = AF_INET;
+    direccionServidor.sin_port = htons(puerto);
+    direccionServidor.sin_addr.s_addr = INADDR_ANY;
+
+    // Asociar el socket a la dirección y puerto
+    if (bind(descriptorServidor, (sockaddr*)&direccionServidor, sizeof(direccionServidor)) == -1) {
+        std::cerr << "Error al hacer bind del socket del servidor.\n";
+        return;
+    }
+
+    // Poner el servidor en modo escucha
+    if (listen(descriptorServidor, 10) == -1) {
+        std::cerr << "Error al poner el servidor en modo escucha.\n";
+        return;
+    }
+
+    std::cout << "Servidor iniciado en el puerto " << puerto << ". Esperando conexiones...\n";
+
+    // Iniciar el hilo de monitoreo
+    std::thread hiloMonitoreo(&ServidorChat::monitorearEstado, this);
+    hiloMonitoreo.detach();
+
+    // Aceptar conexiones entrantes
+    while (true) {
+        sockaddr_in direccionCliente;
+        socklen_t tamanoDireccionCliente = sizeof(direccionCliente);
+        int descriptorCliente = accept(descriptorServidor, (sockaddr*)&direccionCliente, &tamanoDireccionCliente);
+
+        if (descriptorCliente == -1) {
+            std::cerr << "Error al aceptar la conexión de un cliente.\n";
+            continue;
+        }
+
+        if (usuarios.size() >= 2) {
+            std::string mensaje = "Servidor lleno. No se pueden conectar más clientes.";
+            send(descriptorCliente, mensaje.c_str(), mensaje.size(), 0);
+            close(descriptorCliente);
+            continue;
+        }
+
+        // Crear un hilo para manejar el cliente
+        std::thread hiloCliente(&ServidorChat::manejarCliente, this, descriptorCliente);
+        hiloCliente.detach();
+    }
+}
+
+// Manejar la comunicación con un cliente
+void ServidorChat::manejarCliente(int descriptorCliente) {
+    char buffer[1024];
+
+    // Pedir el nombre del usuario
+    send(descriptorCliente, "Ingrese su nombre: ", 19, 0);
+    ssize_t bytesRecibidos = recv(descriptorCliente, buffer, 1024, 0);
+    if (bytesRecibidos <= 0) {
+        close(descriptorCliente);
+        return;
+    }
+    std::string nombreUsuario = std::string(buffer, bytesRecibidos);
+    nombreUsuario.erase(nombreUsuario.find_last_not_of(" \n\r\t") + 1);
+
+    // Pedir el nombre de la película
+    send(descriptorCliente, "Ingrese el nombre de la película: ", 35, 0);
+    bytesRecibidos = recv(descriptorCliente, buffer, 1024, 0);
+    if (bytesRecibidos <= 0) {
+        close(descriptorCliente);
+        return;
+    }
+    std::string peliUsuario = std::string(buffer, bytesRecibidos);
+    peliUsuario.erase(peliUsuario.find_last_not_of(" \n\r\t") + 1);
+
+    {
+        std::lock_guard<std::mutex> lock(mutexUsuarios);
+        usuarios.emplace_back(nombreUsuario, peliUsuario, descriptorCliente);
+    }
+
+    std::string mensajeBienvenida = nombreUsuario + " se ha conectado al chat.\n";
+    enviarMensajeATodos(mensajeBienvenida, descriptorCliente);
+
+    while (true) {
+        memset(buffer, 0, sizeof(buffer));
+        bytesRecibidos = recv(descriptorCliente, buffer, 1024, 0);
+
+        if (bytesRecibidos <= 0) {
+            {
+                std::lock_guard<std::mutex> lock(mutexUsuarios);
+                for (auto it = usuarios.begin(); it != usuarios.end(); ++it) {
+                    if (it->obtenerDescriptorSocket() == descriptorCliente) {
+                        std::string mensajeDespedida = it->obtenerNombreUsuario() + " se ha desconectado del chat.\n";
+                        enviarMensajeATodos(mensajeDespedida, descriptorCliente);
+                        usuarios.erase(it);
+                        break;
+                    }
+                }
+            }
+            close(descriptorCliente);
+            break;
+        }
+
+        std::string mensaje = std::string(buffer, bytesRecibidos);
+
+        if (mensaje.substr(0, 9) == "@usuarios") {
+            enviarListaUsuarios(descriptorCliente);
+        } else if (mensaje.substr(0, 9) == "@conexion") {
+            enviarDetallesConexion(descriptorCliente);
+        } else if (mensaje.substr(0, 6) == "@salir") {
+            close(descriptorCliente);
+            break;
+        } else if (mensaje.substr(0, 2) == "@h") {
+            std::string ayuda = "Comandos disponibles:\n"
+                                "@usuarios - Lista de usuarios conectados\n"
+                                "@conexion - Muestra la conexión y el número de usuarios\n"
+                                "@salir - Desconectar del chat\n";
+            send(descriptorCliente, ayuda.c_str(), ayuda.size(), 0);
+        } else {
+            mensaje = nombreUsuario + ": " + mensaje;
+            enviarMensajeATodos(mensaje, descriptorCliente);
+        }
+    }
+}
+
+// Enviar un mensaje a todos los usuarios conectados, excepto al remitente
+void ServidorChat::enviarMensajeATodos(const std::string& mensaje, int descriptorRemitente) {
+    std::lock_guard<std::mutex> lock(mutexUsuarios);
+    for (const auto& usuario : usuarios) {
+        if (usuario.obtenerDescriptorSocket() != descriptorRemitente) {
+            send(usuario.obtenerDescriptorSocket(), mensaje.c_str(), mensaje.size(), 0);
+        }
+    }
+}
+
+// Enviar la lista de usuarios conectados al cliente especificado
+void ServidorChat::enviarListaUsuarios(int descriptorCliente) {
+    std::lock_guard<std::mutex> lock(mutexUsuarios);
+    std::string listaUsuarios = "Usuarios conectados:\n";
+    for (const auto& usuario : usuarios) {
+        listaUsuarios += usuario.obtenerNombreUsuario() + "\n";
+    }
+    send(descriptorCliente, listaUsuarios.c_str(), listaUsuarios.size(), 0);
+}
+
+// Enviar los detalles de la conexión y el número de usuarios conectados
+void ServidorChat::enviarDetallesConexion(int descriptorCliente) {
+    std::lock_guard<std::mutex> lock(mutexUsuarios);
+    std::string detalles = "Número de usuarios conectados: " + std::to_string(usuarios.size()) + "\n";
+    send(descriptorCliente, detalles.c_str(), detalles.size(), 0);
+}
+
+// Monitorear el estado del chat y los usuarios conectados cada 10 segundos
+void ServidorChat::monitorearEstado() {
+    std::string ipServidorRemoto = "127.0.0.1";  // Cambia esto a la IP del servidor remoto
+    int puertoServidorRemoto = 12345;            // Cambia esto al puerto del servidor remoto
+
+    while (true) {
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+        std::lock_guard<std::mutex> lock(mutexUsuarios);
+
+        std::cout << "Estado del chat:\n";
+        std::cout << "Número de usuarios conectados: " << usuarios.size() << "\n";
+        
+        std::string datosUsuarios;
+        std::string cantUsuarios;
+        for (const auto& usuario : usuarios) {
+            datosUsuarios += "El " + usuario.obtenerNombreUsuario() + " está viendo " + usuario.obtenerPeliculaUsuario() + "\n";
+            cantUsuarios += "La cantidad de usuarios conectados es " + std::to_string(usuarios.size()) + "\n";
+            std::cout << usuario.obtenerNombreUsuario() << "\n";
+            std::cout << usuario.obtenerPeliculaUsuario() << "\n";
+        }
+        std::cout << "---------------------------------\n";
+
+        // Conectar al servidor remoto
+        int descriptorServidorRemoto = conectarAServidorRemoto(ipServidorRemoto, puertoServidorRemoto);
+        if (descriptorServidorRemoto != -1) {
+            send(descriptorServidorRemoto, datosUsuarios.c_str(), datosUsuarios.size(), 0);
+            close(descriptorServidorRemoto);
+        }
+    }
+}
