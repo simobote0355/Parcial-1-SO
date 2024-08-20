@@ -1,6 +1,8 @@
 #include <iostream>
+#include <thread>
 #include "ClienteChat.h"
 #include "ServidorChat.h"
+#include "MonitorChat.h"
 
 int main(int argc, char* argv[]) {
     if (argc < 3) {
@@ -35,6 +37,23 @@ int main(int argc, char* argv[]) {
         }
 
         cliente.desconectar();  // Desconecta del servidor
+    } else if (modo == "monitor") {
+        if (argc < 4) {
+            std::cerr << "Uso: " << argv[0] << " monitor <direccionIP> <puerto>\n";
+            return 1;
+        }
+        std::string direccionIP = argv[2];
+        int puerto = std::stoi(argv[3]);
+        MonitorChat monitor(direccionIP, puerto);  // Inicializa el monitor con la dirección IP y puerto proporcionados
+        monitor.conectarAlServidor();  // Conecta al servidor
+
+        // Solicitar información periódicamente
+        while (true) {
+            monitor.solicitarInformacion();
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+        }
+
+        monitor.desconectar();  // Desconecta del servidor
     } else {
         std::cerr << "Modo desconocido: " << modo << "\n";
         return 1;

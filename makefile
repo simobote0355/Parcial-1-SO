@@ -8,7 +8,7 @@ INCLUDE_DIR = include
 BUILD_DIR = build
 
 # Archivos fuente y de cabecera
-SRCS = $(wildcard $(SRC_DIR)/*.cpp) main.cpp
+SRCS = $(wildcard $(SRC_DIR)/*.cpp) main.cpp 
 OBJS = $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
 
 # Archivo ejecutable
@@ -33,18 +33,12 @@ $(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIR)
 clean:
 	rm -rf $(BUILD_DIR)
 
-
-# Se puede cambiar el target por build/chat
 # Ejecutar el servidor
-
-run-servidor1: $(TARGET)
+run-server1: $(TARGET)
 	./$(TARGET) servidor 12346
 
-run-servidor2: $(TARGET)
+run-server2: $(TARGET)
 	./$(TARGET) servidor 12347
-
-run-servidor3: $(TARGET)
-	./$(TARGET) servidor 12348
 
 # Ejecutar el cliente
 run-cliente1: $(TARGET)
@@ -53,13 +47,13 @@ run-cliente1: $(TARGET)
 run-cliente2: $(TARGET)
 	./$(TARGET) cliente 127.0.0.1 12347
 
-run-cliente3: $(TARGET)
-	./$(TARGET) cliente 127.0.0.1 12348
+run-monitor1: $(TARGET)
+	./$(TARGET) monitor 127.0.0.1 12346
 
-run-serverall: $(TARGET)
-	./$(TARGET) servidor 12345
-	./$(TARGET) servidor 12346
-	./$(TARGET) servidor 12347
+run-monitor2: $(TARGET)
+	./$(TARGET) monitor 127.0.0.1 12347
+
+
 
 # Declarar reglas como phony
 .PHONY: all clean run-servidor run-cliente

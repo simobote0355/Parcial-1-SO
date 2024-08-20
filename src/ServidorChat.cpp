@@ -13,7 +13,7 @@
 ServidorChat::ServidorChat(int puerto)
     : puerto(puerto), descriptorServidor(-1) {}
 
-
+//////
 int ServidorChat::conectarAServidorRemoto(const std::string& ipServidor, int puertoServidor) {
     int descriptorCliente = socket(AF_INET, SOCK_STREAM, 0);
     if (descriptorCliente == -1) {
@@ -27,13 +27,14 @@ int ServidorChat::conectarAServidorRemoto(const std::string& ipServidor, int pue
     inet_pton(AF_INET, ipServidor.c_str(), &direccionServidor.sin_addr);
 
     if (connect(descriptorCliente, (sockaddr*)&direccionServidor, sizeof(direccionServidor)) == -1) {
-        std::cerr << "Error al conectar con el servidor remoto.\n";
+        //std::cerr << "Error al conectar con el servidor remoto.\n";
         close(descriptorCliente);
         return -1;
     }
 
     return descriptorCliente;
 }
+//////
 
 // Método para iniciar el servidor
 void ServidorChat::iniciar() {
@@ -63,9 +64,12 @@ void ServidorChat::iniciar() {
 
     std::cout << "Servidor iniciado en el puerto " << puerto << ". Esperando conexiones...\n";
 
+//////
     // Iniciar el hilo de monitoreo
     std::thread hiloMonitoreo(&ServidorChat::monitorearEstado, this);
     hiloMonitoreo.detach();
+//////
+
 
     // Aceptar conexiones entrantes
     while (true) {
@@ -77,14 +81,14 @@ void ServidorChat::iniciar() {
             std::cerr << "Error al aceptar la conexión de un cliente.\n";
             continue;
         }
-
-        if (usuarios.size() >= 2) {
+//////
+        if (usuarios.size() >= 5) {
             std::string mensaje = "Servidor lleno. No se pueden conectar más clientes.";
             send(descriptorCliente, mensaje.c_str(), mensaje.size(), 0);
             close(descriptorCliente);
             continue;
         }
-
+//////
         // Crear un hilo para manejar el cliente
         std::thread hiloCliente(&ServidorChat::manejarCliente, this, descriptorCliente);
         hiloCliente.detach();
@@ -105,6 +109,7 @@ void ServidorChat::manejarCliente(int descriptorCliente) {
     std::string nombreUsuario = std::string(buffer, bytesRecibidos);
     nombreUsuario.erase(nombreUsuario.find_last_not_of(" \n\r\t") + 1);
 
+//////
     // Pedir el nombre de la película
     send(descriptorCliente, "Ingrese el nombre de la película: ", 35, 0);
     bytesRecibidos = recv(descriptorCliente, buffer, 1024, 0);
@@ -114,7 +119,9 @@ void ServidorChat::manejarCliente(int descriptorCliente) {
     }
     std::string peliUsuario = std::string(buffer, bytesRecibidos);
     peliUsuario.erase(peliUsuario.find_last_not_of(" \n\r\t") + 1);
+//////
 
+//////
     {
         std::lock_guard<std::mutex> lock(mutexUsuarios);
         usuarios.emplace_back(nombreUsuario, peliUsuario, descriptorCliente);
@@ -122,6 +129,7 @@ void ServidorChat::manejarCliente(int descriptorCliente) {
 
     std::string mensajeBienvenida = nombreUsuario + " se ha conectado al chat.\n";
     enviarMensajeATodos(mensajeBienvenida, descriptorCliente);
+//////
 
     while (true) {
         memset(buffer, 0, sizeof(buffer));
@@ -144,7 +152,8 @@ void ServidorChat::manejarCliente(int descriptorCliente) {
         }
 
         std::string mensaje = std::string(buffer, bytesRecibidos);
-
+        
+        //Procesar comandos del protocolo
         if (mensaje.substr(0, 9) == "@usuarios") {
             enviarListaUsuarios(descriptorCliente);
         } else if (mensaje.substr(0, 9) == "@conexion") {
@@ -152,7 +161,9 @@ void ServidorChat::manejarCliente(int descriptorCliente) {
         } else if (mensaje.substr(0, 6) == "@salir") {
             close(descriptorCliente);
             break;
-        } else if (mensaje.substr(0, 2) == "@h") {
+        } else if (mensaje.substr(0, 11) == "@monitorear") {
+            enviarEstadoMonitoreo(descriptorCliente);
+        }else if (mensaje.substr(0, 2) == "@h") {
             std::string ayuda = "Comandos disponibles:\n"
                                 "@usuarios - Lista de usuarios conectados\n"
                                 "@conexion - Muestra la conexión y el número de usuarios\n"
@@ -192,6 +203,7 @@ void ServidorChat::enviarDetallesConexion(int descriptorCliente) {
     send(descriptorCliente, detalles.c_str(), detalles.size(), 0);
 }
 
+//////
 // Monitorear el estado del chat y los usuarios conectados cada 10 segundos
 void ServidorChat::monitorearEstado() {
     std::string ipServidorRemoto = "127.0.0.1";  // Cambia esto a la IP del servidor remoto
@@ -201,18 +213,18 @@ void ServidorChat::monitorearEstado() {
         std::this_thread::sleep_for(std::chrono::seconds(10));
         std::lock_guard<std::mutex> lock(mutexUsuarios);
 
-        std::cout << "Estado del chat:\n";
-        std::cout << "Número de usuarios conectados: " << usuarios.size() << "\n";
+        //std::cout << "Estado del chat:\n";
+        //std::cout << "Número de usuarios conectados: " << usuarios.size() << "\n";
         
         std::string datosUsuarios;
         std::string cantUsuarios;
         for (const auto& usuario : usuarios) {
             datosUsuarios += "El " + usuario.obtenerNombreUsuario() + " está viendo " + usuario.obtenerPeliculaUsuario() + "\n";
             cantUsuarios += "La cantidad de usuarios conectados es " + std::to_string(usuarios.size()) + "\n";
-            std::cout << usuario.obtenerNombreUsuario() << "\n";
-            std::cout << usuario.obtenerPeliculaUsuario() << "\n";
+            //std::cout << usuario.obtenerNombreUsuario() << "\n";
+            //std::cout << usuario.obtenerPeliculaUsuario() << "\n";
         }
-        std::cout << "---------------------------------\n";
+        //std::cout << "---------------------------------\n";
 
         // Conectar al servidor remoto
         int descriptorServidorRemoto = conectarAServidorRemoto(ipServidorRemoto, puertoServidorRemoto);
@@ -222,3 +234,15 @@ void ServidorChat::monitorearEstado() {
         }
     }
 }
+
+void ServidorChat::enviarEstadoMonitoreo(int descriptorCliente) {
+    std::lock_guard<std::mutex> lock(mutexUsuarios);
+    std::string estadoMonitoreo = "Estado de los clientes:\n";
+    for (const auto& usuario : usuarios) {
+        estadoMonitoreo += usuario.obtenerNombreUsuario() + " está viendo " + usuario.obtenerPeliculaUsuario() +"\n";
+        
+    }
+    send(descriptorCliente, estadoMonitoreo.c_str(), estadoMonitoreo.size(), 0);
+}
+
+//////

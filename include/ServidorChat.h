@@ -17,6 +17,7 @@ private:
     void enviarMensajeATodos(const std::string& mensaje, int descriptorRemitente);
     void enviarListaUsuarios(int descriptorCliente);
     void enviarDetallesConexion(int descriptorCliente);
+    void enviarEstadoMonitoreo(int descriptorCliente);
     int conectarAServidorRemoto(const std::string& ipServidor, int puertoServidor); // Declaración
 
 
