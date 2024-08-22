@@ -1,0 +1,209 @@
+Ingrese su nombre: 
+Ingrese el nombre de la película q
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Ingrese su nombre: 
+Ingrese el nombre de la película q
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Estado de los clientes:
+manuel está viendo holaaaaa
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+manuel está viendo holaaaaa
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+manuel está viendo holaaaaa
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+manuel está viendo holaaaaa
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+manuel está viendo holaaaaa
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+
+Número de usuarios conectados: 1
+Estado de los clientes:
+simon está viendo hulk
+@conexion@monitorear está viendo @conexion
+

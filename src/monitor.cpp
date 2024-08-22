@@ -44,6 +44,10 @@ void MonitorChat::conectarAlServidor() {
 // Método para solicitar información al servidor
 void MonitorChat::solicitarInformacion() {
     if (conectado) {
+        std::string solicitud = "@conexion";
+        send(descriptorMonitor, solicitud.c_str(), solicitud.size(), 0);
+    }
+    if (conectado) {
         std::string solicitud = "@monitorear";
         send(descriptorMonitor, solicitud.c_str(), solicitud.size(), 0);
     }
@@ -97,7 +101,8 @@ void MonitorChat::recibirInformacion() {
             desconectar();
             break;
         }
-        std::string mensaje = "Información recibida: " + std::string(buffer, bytesRecibidos);
+        std::string mensaje = std::string(buffer, bytesRecibidos);
         escribirEnArchivo(mensaje);  // Escribir la información en el archivo
+        std:: cerr << mensaje;
     }
 }

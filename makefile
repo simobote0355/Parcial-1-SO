@@ -36,7 +36,7 @@ clean:
 # Ejecutar el servidor
 run-server1: $(TARGET)
 	./$(TARGET) servidor 12346
-
+	
 run-server2: $(TARGET)
 	./$(TARGET) servidor 12347
 
@@ -52,8 +52,6 @@ run-monitor1: $(TARGET)
 
 run-monitor2: $(TARGET)
 	./$(TARGET) monitor 127.0.0.1 12347
-
-
 
 # Declarar reglas como phony
 .PHONY: all clean run-servidor run-cliente
