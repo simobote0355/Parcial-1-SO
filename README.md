@@ -1,4 +1,4 @@
-Este es el proyecto para el primer parcial de Sistemas Operativos. El equipo está conformado:
+Este es el proyecto para el primer parcial de Sistemas Operativos. El equipo está conformado por:
 
 - Laura Danniela Zárate
 - Pablo Moreno
